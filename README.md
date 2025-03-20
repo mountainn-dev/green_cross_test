@@ -1,16 +1,50 @@
 # green_cross_test
+__녹십자 데이터 서비스팀 모바일 개발 인턴 과제 전형__
 
-A new Flutter project.
+- 영업점별로 영업 내용을 공유할 수 있는 메모 서비스입니다.
 
-## Getting Started
+## 기능 목록
+- [] 0. 기본 화면은 영업점 정보를 바탕으로 구성한다.
+  - [] 영업점 이름과 위치 정보를 바탕으로 영업점 데이터를 구성한다.
+- [] 1. 메모를 작성한다.
+  - [] 작성 시 계정 정보를 바탕으로 메모 데이터를 구성한다.
+  - [] 사용자 정보(Account.Id)와 작성자 정보(Account.Id)가 일치하는 경우, 수정 삭제가 가능하다.
+    - [] Account 정보가 불일치 하더라도, 기능 시연을 위해 수정 삭제 버튼을 일부러 노출시키고, 권한 관련 피드백을 제공
+  - [] 작성된 메모는 직무, 영업점 위치, 작성 일자, 내용을 제공한다.
+  - [] 작성된 메모는 최신순으로 정렬한다.
+  - [] 영업점별로 작성된 메모의 총 개수 확인이 가능하다.
+- [] 2. 메모에 답글을 작성한다.
+  - [] 작성 시 메모와 계정 정보를 바탕으로 답글 데이터를 구성한다.
+  - [] 사용자 정보(Account.Id)와 작성자 정보(Account.Id)가 일치하는 경우, 수정 삭제가 가능하다.
+    - [] Account 정보가 불일치 하더라도, 기능 시연을 위해 수정 삭제 버튼을 일부러 노출시키고, 권한 관련 피드백을 제공
+  - [] 작성된 답글은 직무, 영업점 위치, 작성 일자, 내용을 제공한다.
+  - [] 작성된 답글은 최신순으로 정렬한다.
 
-This project is a starting point for a Flutter application.
+## Domain Model
+영업점(Office)
+계정(Account)
+메모(Memo)
+댓글(Comment)
+* Id 해시값은 SHA256 에 기반해 주어진 요소들을 조합하여 생성
 
-A few resources to get you started if this is your first Flutter project:
+__영업점(Office)__
+- Id(Name + Location): 영업점 이름 + 위치
+- Name
+- Location
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+__계정(Account)__
+- Id(Office.Id + Role): 영업점 + 직무명
+- Office
+- Role
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+__메모(Memo)__
+- Id(Account.Id + CreatedAt): 계정 + 생성 일자
+- Account
+- CreatedAt
+- Content
+
+__댓글(Comment)__
+- Id(Memo.Id + Account.Id + CreatedAt): 메모 + 계정(작성자) + 생성 일자
+- Account
+- CreatedAt
+- Content
