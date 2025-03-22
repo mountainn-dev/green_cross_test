@@ -13,17 +13,18 @@ class MemoDatabase {
   static const String TABLE_OFFICE = "offices";
   static const String TABLE_ACCOUNT = "accounts";
   static const String TABLE_MEMO = "memos";
+
   static late final Database _database;
   static bool _databaseInit = false;
+  Future<Database> get database async {
+    if (_databaseInit) return _database;
 
-  MemoDatabase() {
-    if (!_databaseInit) {
-      _initDatabase().then((value) {
-        _database = value;
-        _databaseInit = true;
-      });
-    }
+    _database = await _initDatabase();
+    _databaseInit = true;
+    return _database;
   }
+
+  MemoDatabase();
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), _databaseName);
@@ -74,7 +75,7 @@ class MemoDatabase {
       String name,
       String location,
   ) async {
-    await _checkDatabase();
+    await database;
 
     Office office = Office(
       id: name.hashCode ^ location.hashCode,
@@ -95,7 +96,7 @@ class MemoDatabase {
       int office,
       String role,
   ) async {
-    await _checkDatabase();
+    await database;
 
     Account account = Account(
       id: office ^ role.hashCode,
@@ -110,14 +111,14 @@ class MemoDatabase {
     );
 
     List<Map<String, dynamic>> result = await _database.rawQuery(
-        'SELECT office.id AS office_id'
-            'office.name AS office_name'
-            'office.location AS office_location'
-            'account.id AS account_id'
-            'account.role AS role'
-            'FROM $TABLE_ACCOUNT'
-            'INNER JOIN $TABLE_OFFICE ON account.office = office.id'
-            'WHERE account.id IS $account.id'
+        'SELECT $TABLE_OFFICE.id AS office_id, '
+            '$TABLE_OFFICE.name AS office_name, '
+            '$TABLE_OFFICE.location AS office_location, '
+            '$TABLE_ACCOUNT.id AS account_id, '
+            '$TABLE_ACCOUNT.role AS role '
+            'FROM $TABLE_ACCOUNT '
+            'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
+            'WHERE $TABLE_ACCOUNT.id = ${account.id}'
     );
 
     if (result.isNotEmpty) {
@@ -132,7 +133,7 @@ class MemoDatabase {
       int createdAt,
       String content,
   ) async {
-    await _checkDatabase();
+    await database;
 
     Memo memo = Memo(
       id: author ^ createdAt.hashCode,
@@ -148,14 +149,5 @@ class MemoDatabase {
     );
 
     return memo;
-  }
-
-  Future<void> _checkDatabase() async {
-    if (!_databaseInit) {
-      await _initDatabase().then((value) {
-      _database = value;
-      _databaseInit = true;
-    });
-    }
   }
 }

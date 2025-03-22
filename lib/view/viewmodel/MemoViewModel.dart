@@ -38,6 +38,10 @@ class MemoViewModel {
   Future<void> _createAccount(
       String role,
   ) async {
-    await repository.createAccount(_office.id, role);
+    Result result = await repository.createAccount(_office.id, role);
+
+    if (result is Success) {
+      _user = result.data;
+    }
   }
 }

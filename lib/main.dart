@@ -36,23 +36,25 @@ class _MemoScreen extends StatelessWidget {
                 color: Color(0xFFFF8A00),
               ),
             );
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-            ),
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(_viewModel.office.name),
-                  Text(_viewModel.office.location),
-                ],
+          } else {
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
               ),
-            ),
-          );
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(_viewModel.office.name),
+                    Text(_viewModel.office.location),
+                    Text(_viewModel.user.office.name),
+                    Text(_viewModel.user.role),
+                  ],
+                ),
+              ),
+            );
+          }
         }
     );
   }
