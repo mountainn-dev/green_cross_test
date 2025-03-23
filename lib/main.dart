@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:green_cross_test/domain/model/AccountModel.dart';
 import 'package:green_cross_test/view/viewmodel/MemoViewModel.dart';
 
 import 'domain/model/OfficeModel.dart';
@@ -10,63 +11,151 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: _MemoScreen(
-          office: OfficeModel(
-              name: "단아치과의원",
-              location: "서울 구로구 구로 1동"
-          ),
-      ),
+      title: 'MemoApplication',
+      home: _MemoScreen(),
     );
   }
 }
 
 class _MemoScreen extends StatelessWidget {
-  late final MemoViewModel _viewModel;
+  final MemoViewModel _viewModel = MemoViewModel();
 
-  _MemoScreen({required OfficeModel office}) {
-    _viewModel = MemoViewModel(office);
-  }
+  _MemoScreen();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(_viewModel.office.name),
-            Text(_viewModel.office.location),
-          ],
-        ),
-      ),
+    return FutureBuilder<void>(
+        // TODO: base 정보 입력
+        future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CE"),
+        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return Scaffold(
+              appBar: AppBar(),
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      _viewModel.office.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20
+                      ),
+                    ),
+                    Text(
+                      _viewModel.office.location,
+                      style: const TextStyle(
+                          color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      _viewModel.user.role,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              floatingActionButton: FloatingActionButton.extended(
+                label: Text("메모 작성하기"),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: Text("메모 작성하기"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _viewModel.office.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                            ),
+                          ),
+                          Text(
+                            _viewModel.office.location,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                            child: TextField(
+                              controller: _viewModel.memoContentController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  borderSide: BorderSide(
+                                    width: 1,
+                                    color: Colors.grey
+                                  )
+                                )
+                              ),
+                              maxLines: 8,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    "취소",
+                                    style: TextStyle(
+                                      color: Colors.black45
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.grey.withOpacity(0.4)
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    // TODO: 메모 작성
+                                    _viewModel.createMemo().then((value) {
+
+                                    });
+                                  },
+                                  child: const Text(
+                                    "완료",
+                                    style: TextStyle(
+                                        color: Colors.white
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                      backgroundColor: Colors.blue
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+
+                    ),
+                  );
+                },
+              ),
+            );
+          }
+        }
     );
   }
 }
