@@ -1,11 +1,10 @@
+import 'package:green_cross_test/data/source/local/dao/OfficeAccountMemo.dart';
 import 'package:green_cross_test/data/source/local/database/MemoDatabase.dart';
 
 import '../../domain/model/AccountModel.dart';
 import '../../domain/model/MemoModel.dart';
 import '../../domain/model/OfficeModel.dart';
 import '../Result.dart';
-import '../source/local/dao/Account.dart';
-import '../source/local/dao/Memo.dart';
 import '../source/local/dao/Office.dart';
 import '../source/local/dao/OfficeAccount.dart';
 
@@ -30,13 +29,12 @@ class ServiceRepository {
     }
   }
 
-  // Future<Result<MemoModel>> create(MemoModel memo) async {
-  //   try {
-  //     Memo data = await _database.create(memo.toDao());
-  //
-  //     return Result.success(data.);
-  //   } catch (e) {
-  //
-  //   }
-  // }
+  Future<Result<MemoModel>> createMemo(int author, String content) async {
+    try {
+      OfficeAccountMemo data = await _database.createMemo(author, content);
+      return Result.success(data.toModel());
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
 }

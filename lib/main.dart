@@ -28,6 +28,7 @@ class _MemoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
+        // TODO: base 정보 입력
         future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CE"),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -53,6 +54,12 @@ class _MemoScreen extends StatelessWidget {
                       _viewModel.office.location,
                       style: const TextStyle(
                           color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      _viewModel.user.role,
+                      style: const TextStyle(
+                        color: Colors.grey,
                       ),
                     ),
                   ],
@@ -121,7 +128,10 @@ class _MemoScreen extends StatelessWidget {
                               Expanded(
                                 child: TextButton(
                                   onPressed: () {
-                                    // TODO: _viewModel.createMemo()
+                                    // TODO: 메모 작성
+                                    _viewModel.createMemo().then((value) {
+
+                                    });
                                   },
                                   child: const Text(
                                     "완료",

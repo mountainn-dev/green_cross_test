@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+
 import '../dao/Account.dart';
 import '../dao/Memo.dart';
 import '../dao/Office.dart';
 import '../dao/OfficeAccount.dart';
+import '../dao/OfficeAccountMemo.dart';
 
 class MemoDatabase {
   static const String _databaseName = "MemoDatabase";
@@ -64,10 +66,9 @@ class MemoDatabase {
     await db.execute(
       'CREATE TABLE $TABLE_MEMO ('
           'id INTEGER PRIMARY KEY, '
-          'account INTEGER, '
+          'author INTEGER, '
           'createdAt INTEGER, '
-          'content TEXT'
-          ')',
+          'content TEXT )',
     );
   }
 
@@ -111,11 +112,11 @@ class MemoDatabase {
     );
 
     List<Map<String, dynamic>> result = await _database.rawQuery(
-        'SELECT $TABLE_OFFICE.id AS office_id, '
+        'SELECT $TABLE_ACCOUNT.id AS account_id, '
+            '$TABLE_ACCOUNT.role AS account_role, '
+            '$TABLE_OFFICE.id AS office_id, '
             '$TABLE_OFFICE.name AS office_name, '
-            '$TABLE_OFFICE.location AS office_location, '
-            '$TABLE_ACCOUNT.id AS account_id, '
-            '$TABLE_ACCOUNT.role AS role '
+            '$TABLE_OFFICE.location AS office_location '
             'FROM $TABLE_ACCOUNT '
             'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
             'WHERE $TABLE_ACCOUNT.id = ${account.id}'
@@ -128,13 +129,13 @@ class MemoDatabase {
     }
   }
 
-  Future<Memo> createMemo(
+  Future<OfficeAccountMemo> createMemo(
       int author,
-      int createdAt,
       String content,
   ) async {
     await database;
 
+    int createdAt = DateTime.now().millisecondsSinceEpoch;
     Memo memo = Memo(
       id: author ^ createdAt.hashCode,
       author: author,
@@ -148,6 +149,25 @@ class MemoDatabase {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
 
-    return memo;
+    List<Map<String, dynamic>> result = await _database.rawQuery(
+        'SELECT $TABLE_MEMO.id AS memo_id, '
+            '$TABLE_MEMO.createdAt AS memo_created_at, '
+            '$TABLE_MEMO.content AS memo_content, '
+            '$TABLE_ACCOUNT.id AS account_id, '
+            '$TABLE_ACCOUNT.role AS account_role, '
+            '$TABLE_OFFICE.id AS office_id, '
+            '$TABLE_OFFICE.name AS office_name, '
+            '$TABLE_OFFICE.location AS office_location '
+            'FROM $TABLE_MEMO '
+            'INNER JOIN $TABLE_ACCOUNT ON $TABLE_MEMO.author = $TABLE_ACCOUNT.id '
+            'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
+            'WHERE $TABLE_MEMO.id = ${memo.id}'
+    );
+
+    if (result.isNotEmpty) {
+      return OfficeAccountMemo.fromMap(result.first);
+    } else {
+      throw Exception("no Data");
+    }
   }
 }

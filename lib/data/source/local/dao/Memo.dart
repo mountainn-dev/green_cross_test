@@ -21,9 +21,4 @@ class Memo {
     'createdAt': createdAt,
     'content': content,
   };
-
-  MemoModel toModel(AccountModel author) => MemoModel(
-      author: author,
-      content: content,
-  );
 }
