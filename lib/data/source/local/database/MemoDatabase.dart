@@ -188,4 +188,55 @@ class MemoDatabase {
 
     return result.map((memo) => OfficeAccountMemo.fromMap(memo)).toList();
   }
+
+  Future<void> updateMemo(
+      int user,
+      int memo,
+     String newContent,
+  ) async {
+    await _checkAuthor(user, memo);
+
+    await _database.rawUpdate(
+      'UPDATE $TABLE_MEMO '
+          'SET content = ? '
+          'WHERE id = ?',
+      [newContent, memo]
+    );
+  }
+
+  Future<void> deleteMemo(
+      int user,
+      int memo,
+  ) async {
+    await _checkAuthor(user, memo);
+
+    await _database.rawDelete(
+      'DELETE FROM $TABLE_MEMO '
+          'WHERE $TABLE_MEMO.id = $memo'
+    );
+  }
+
+  Future<void> _checkAuthor(int user, int memo) async {
+    await database;
+
+    List<Map<String, dynamic>> result = await _database.rawQuery(
+        'SELECT $TABLE_MEMO.id AS memo_id, '
+            '$TABLE_MEMO.createdAt AS memo_created_at, '
+            '$TABLE_MEMO.content AS memo_content, '
+            '$TABLE_ACCOUNT.id AS account_id, '
+            '$TABLE_ACCOUNT.role AS account_role, '
+            '$TABLE_OFFICE.id AS office_id, '
+            '$TABLE_OFFICE.name AS office_name, '
+            '$TABLE_OFFICE.location AS office_location '
+            'FROM $TABLE_MEMO '
+            'INNER JOIN $TABLE_ACCOUNT ON $TABLE_MEMO.author = $TABLE_ACCOUNT.id '
+            'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
+            'WHERE memo_id = $memo'
+    );
+
+    OfficeAccountMemo target = OfficeAccountMemo.fromMap(result.first);
+    if (target.authorId != user) {
+      throw Exception("권한이 없습니다.");
+    }
+  }
 }

@@ -11,7 +11,10 @@ import '../source/local/dao/OfficeAccount.dart';
 class ServiceRepository {
   static final _database = MemoDatabase();
 
-  Future<Result<OfficeModel>> createOffice(String name, String location) async {
+  Future<Result<OfficeModel>> createOffice(
+      String name,
+      String location,
+  ) async {
     try {
       Office data = await _database.createOffice(name, location);
       return Result.success(data.toModel());
@@ -20,7 +23,10 @@ class ServiceRepository {
     }
   }
 
-  Future<Result<AccountModel>> createAccount(int office, String role) async {
+  Future<Result<AccountModel>> createAccount(
+      int office,
+      String role,
+  ) async {
     try {
       OfficeAccount data = await _database.createAccount(office, role);
       return Result.success(data.toModel());
@@ -29,7 +35,10 @@ class ServiceRepository {
     }
   }
 
-  Future<Result<MemoModel>> createMemo(int author, String content) async {
+  Future<Result<MemoModel>> createMemo(
+      int author,
+      String content,
+  ) async {
     try {
       OfficeAccountMemo data = await _database.createMemo(author, content);
       return Result.success(data.toModel());
@@ -44,6 +53,31 @@ class ServiceRepository {
       return Result.success(
           MemoModels(data.map((data) => data.toModel()).toList())
       );
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  Future<Result<void>> updateMemo(
+      int user,
+      int memo,
+      String newContent,
+  ) async {
+    try {
+      await _database.updateMemo(user, memo, newContent);
+      return Result.success(null);
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  Future<Result<void>> deleteMemo(
+      int user,
+      int memo,
+  ) async {
+    try {
+      await _database.deleteMemo(user, memo);
+      return Result.success(null);
     } catch (e) {
       return Result.error(e.toString());
     }
