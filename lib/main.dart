@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:green_cross_test/domain/model/AccountModel.dart';
+import 'package:green_cross_test/view/state/UiState.dart';
 import 'package:green_cross_test/view/viewmodel/MemoViewModel.dart';
 
 import 'domain/model/OfficeModel.dart';
@@ -20,15 +21,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class _MemoScreen extends StatelessWidget {
-  final MemoViewModel _viewModel = MemoViewModel();
+class _MemoScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => MemoState();
+}
 
-  _MemoScreen();
+class MemoState extends State {
+  final MemoViewModel _viewModel = MemoViewModel();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-        // TODO: base 정보 입력
+      // TODO: base 정보 입력
         future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CE"),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -38,33 +42,91 @@ class _MemoScreen extends StatelessWidget {
           } else {
             return Scaffold(
               appBar: AppBar(),
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
                       _viewModel.office.name,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
                       ),
                     ),
-                    Text(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
                       _viewModel.office.location,
-                      style: const TextStyle(
-                          color: Colors.grey,
-                      ),
-                    ),
-                    Text(
-                      _viewModel.user.role,
                       style: const TextStyle(
                         color: Colors.grey,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        TabBar(
+                            tabs: [
+                              Tab(text: "메모"),
+                              Tab(text: "일정"),
+                            ],
+                          labelColor: Colors.black,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorPadding: EdgeInsets.zero,
+                          indicatorColor: Colors.black,
+                        ),
+                        SizedBox(
+                          height: 600,
+                          child: TabBarView(
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text("총 ${_viewModel.memos.size()}개"),
+                                    ),
+                                    SizedBox(height: 12),
+                                    Expanded(
+                                      child: ListView.separated(
+                                        itemBuilder: (BuildContext context, int index) {
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(_viewModel.memos.get(index).author.role),
+                                                  SizedBox(width: 8),
+                                                  Text(_viewModel.memos.get(index).author.office.name),
+                                                ],
+                                              ),
+                                              Text(_viewModel.memos.get(index).createdAt.toString()),
+                                              SizedBox(height: 8),
+                                              Text(_viewModel.memos.get(index).content),
+                                            ],
+                                          );
+                                        },
+                                        separatorBuilder: (BuildContext context, int index) => const Divider(),
+                                        itemCount: _viewModel.memos.size(),
+                                        padding: EdgeInsets.all(8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container()
+                              ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
               ),
+              resizeToAvoidBottomInset: false,
               floatingActionButton: FloatingActionButton.extended(
                 label: Text("메모 작성하기"),
                 onPressed: () {
@@ -86,8 +148,8 @@ class _MemoScreen extends StatelessWidget {
                           Text(
                             _viewModel.office.location,
                             style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12
+                                color: Colors.grey,
+                                fontSize: 12
                             ),
                           ),
                           Container(
@@ -95,13 +157,13 @@ class _MemoScreen extends StatelessWidget {
                             child: TextField(
                               controller: _viewModel.memoContentController,
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                  borderSide: BorderSide(
-                                    width: 1,
-                                    color: Colors.grey
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                      borderSide: BorderSide(
+                                          width: 1,
+                                          color: Colors.grey
+                                      )
                                   )
-                                )
                               ),
                               maxLines: 8,
                             ),
@@ -116,11 +178,11 @@ class _MemoScreen extends StatelessWidget {
                                   child: const Text(
                                     "취소",
                                     style: TextStyle(
-                                      color: Colors.black45
+                                        color: Colors.black45
                                     ),
                                   ),
                                   style: TextButton.styleFrom(
-                                    backgroundColor: Colors.grey.withOpacity(0.4)
+                                      backgroundColor: Colors.grey.withOpacity(0.4)
                                   ),
                                 ),
                               ),
@@ -129,8 +191,21 @@ class _MemoScreen extends StatelessWidget {
                                 child: TextButton(
                                   onPressed: () {
                                     // TODO: 메모 작성
-                                    _viewModel.createMemo().then((value) {
-
+                                    _viewModel.createMemoAndLoad().then((state) {
+                                      if (state is Success) {
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      } else {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("에러"),
+                                                content: Text(_viewModel.error),
+                                              );
+                                            },
+                                        );
+                                      }
                                     });
                                   },
                                   child: const Text(
@@ -148,7 +223,6 @@ class _MemoScreen extends StatelessWidget {
                           )
                         ],
                       ),
-
                     ),
                   );
                 },

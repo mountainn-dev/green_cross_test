@@ -170,4 +170,22 @@ class MemoDatabase {
       throw Exception("no Data");
     }
   }
+
+  Future<List<OfficeAccountMemo>> readMemo(int office) async {
+    List<Map<String, dynamic>> result = await _database.rawQuery(
+        'SELECT $TABLE_MEMO.id AS memo_id, '
+            '$TABLE_MEMO.createdAt AS memo_created_at, '
+            '$TABLE_MEMO.content AS memo_content, '
+            '$TABLE_ACCOUNT.id AS account_id, '
+            '$TABLE_ACCOUNT.role AS account_role, '
+            '$TABLE_OFFICE.id AS office_id, '
+            '$TABLE_OFFICE.name AS office_name, '
+            '$TABLE_OFFICE.location AS office_location '
+            'FROM $TABLE_MEMO '
+            'INNER JOIN $TABLE_ACCOUNT ON $TABLE_MEMO.author = $TABLE_ACCOUNT.id '
+            'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
+    );
+
+    return result.map((memo) => OfficeAccountMemo.fromMap(memo)).toList();
+  }
 }
