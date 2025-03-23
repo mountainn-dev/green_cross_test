@@ -32,26 +32,116 @@ class _MemoScreen extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFFF8A00),
-              ),
+              child: CircularProgressIndicator(),
             );
           } else {
             return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-              ),
+              appBar: AppBar(),
               body: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(_viewModel.office.name),
-                    Text(_viewModel.office.location),
-                    Text(_viewModel.user.office.name),
-                    Text(_viewModel.user.role),
+                    Text(
+                      _viewModel.office.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20
+                      ),
+                    ),
+                    Text(
+                      _viewModel.office.location,
+                      style: const TextStyle(
+                          color: Colors.grey,
+                      ),
+                    ),
                   ],
                 ),
+              ),
+              floatingActionButton: FloatingActionButton.extended(
+                label: Text("메모 작성하기"),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      title: Text("메모 작성하기"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _viewModel.office.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16
+                            ),
+                          ),
+                          Text(
+                            _viewModel.office.location,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0, 12, 0, 12),
+                            child: TextField(
+                              controller: _viewModel.memoContentController,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                  borderSide: BorderSide(
+                                    width: 1,
+                                    color: Colors.grey
+                                  )
+                                )
+                              ),
+                              maxLines: 8,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text(
+                                    "취소",
+                                    style: TextStyle(
+                                      color: Colors.black45
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.grey.withOpacity(0.4)
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () {
+                                    // TODO: _viewModel.createMemo()
+                                  },
+                                  child: const Text(
+                                    "완료",
+                                    style: TextStyle(
+                                        color: Colors.white
+                                    ),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                      backgroundColor: Colors.blue
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+
+                    ),
+                  );
+                },
               ),
             );
           }

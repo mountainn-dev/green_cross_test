@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:green_cross_test/data/Result.dart';
 import 'package:green_cross_test/data/repository/ServiceRepository.dart';
 
@@ -12,6 +13,8 @@ class MemoViewModel {
 
   late final OfficeModel _office;
   OfficeModel get office => _office;
+
+  final TextEditingController memoContentController = TextEditingController();
 
   MemoViewModel();
 
