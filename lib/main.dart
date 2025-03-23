@@ -132,7 +132,23 @@ class MemoState extends State {
                                                   Row(
                                                     children: [
                                                       TextButton(
-                                                          onPressed: () {},
+                                                          onPressed: () {
+                                                            _showMemoEditDialog(
+                                                              context,
+                                                              _viewModel.memos.get(index).content,
+                                                              () {
+                                                                _viewModel.editMemo(_viewModel.memos.get(index))
+                                                                    .then((state) {
+                                                                      if (state is Success) {
+                                                                        setState(() {});
+                                                                        Navigator.pop(context);
+                                                                      } else {
+                                                                        _showErrorDialog(context);
+                                                                      }
+                                                                });
+                                                              },
+                                                            );
+                                                          },
                                                           child: Text("수정"),
                                                       ),
                                                       TextButton(
@@ -142,15 +158,7 @@ class MemoState extends State {
                                                             if (state is Success) {
                                                               setState(() {});
                                                             } else {
-                                                              showDialog(
-                                                                context: context,
-                                                                builder: (BuildContext context) {
-                                                                  return AlertDialog(
-                                                                    title: Text("에러"),
-                                                                    content: Text(_viewModel.error),
-                                                                  );
-                                                                },
-                                                              );
+                                                              _showErrorDialog(context);
                                                             }
                                                           });
                                                         },
@@ -185,106 +193,132 @@ class MemoState extends State {
               floatingActionButton: FloatingActionButton.extended(
                 label: Text("메모 작성하기"),
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      title: Text("메모 작성하기"),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _viewModel.office.name,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16
-                            ),
-                          ),
-                          Text(
-                            _viewModel.office.location,
-                            style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 12
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0, 12, 0, 12),
-                            child: TextField(
-                              controller: _viewModel.memoContentController,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                                      borderSide: BorderSide(
-                                          width: 1,
-                                          color: Colors.grey
-                                      )
-                                  )
-                              ),
-                              maxLines: 8,
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    "취소",
-                                    style: TextStyle(
-                                        color: Colors.black45
-                                    ),
-                                  ),
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: Colors.grey.withOpacity(0.4)
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () {
-                                    // TODO: 메모 작성
-                                    _viewModel.createMemoAndLoad().then((state) {
-                                      if (state is Success) {
-                                        Navigator.pop(context);
-                                        setState(() {});
-                                      } else {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text("에러"),
-                                                content: Text(_viewModel.error),
-                                              );
-                                            },
-                                        );
-                                      }
-                                    });
-                                  },
-                                  child: const Text(
-                                    "완료",
-                                    style: TextStyle(
-                                        color: Colors.white
-                                    ),
-                                  ),
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: Colors.blue
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
+                  _showMemoEditDialog(
+                    context,
+                    null,
+                    () {
+                      // TODO: 메모 작성
+                      _viewModel.createMemoAndLoad().then((state) {
+                        if (state is Success) {
+                          Navigator.pop(context);
+                          setState(() {});
+                        } else {
+                          _showErrorDialog(context);
+                        }
+                      });
+                    },
                   );
                 },
               ),
             );
           }
         }
+    );
+  }
+
+  void _showMemoEditDialog(
+      BuildContext context,
+      String? content, // 초기 데이터
+      void Function() doWhenPositive,
+  ) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text("메모 작성하기"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _viewModel.office.name,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16
+              ),
+            ),
+            Text(
+              _viewModel.office.location,
+              style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: TextField(
+                style: TextStyle(
+                  fontSize: 12,
+                ),
+                controller: _viewModel.memoContentController..text = content ?? "",
+                decoration: InputDecoration(
+                  hintText: "내용을 입력해주세요.",
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                      borderSide: BorderSide(
+                          width: 1,
+                          color: Colors.grey
+                      )
+                  )
+                ),
+                maxLines: 8,
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "취소",
+                      style: TextStyle(
+                          color: Colors.black45
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.grey.withOpacity(0.4)
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      doWhenPositive();
+                    },
+                    child: const Text(
+                      "완료",
+                      style: TextStyle(
+                          color: Colors.white
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                        backgroundColor: Colors.blue
+                    ),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("에러"),
+          content: Text(_viewModel.error),
+        );
+      },
     );
   }
 }

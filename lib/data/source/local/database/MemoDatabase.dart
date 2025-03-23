@@ -189,7 +189,25 @@ class MemoDatabase {
     return result.map((memo) => OfficeAccountMemo.fromMap(memo)).toList();
   }
 
-  Future<void> deleteMemo(int user, int memo) async {
+  Future<void> updateMemo(
+      int user,
+      int memo,
+     String newContent,
+  ) async {
+    await _checkAuthor(user, memo);
+
+    await _database.rawUpdate(
+      'UPDATE $TABLE_MEMO '
+          'SET content = ? '
+          'WHERE id = ?',
+      [newContent, memo]
+    );
+  }
+
+  Future<void> deleteMemo(
+      int user,
+      int memo,
+  ) async {
     await _checkAuthor(user, memo);
 
     await _database.rawDelete(

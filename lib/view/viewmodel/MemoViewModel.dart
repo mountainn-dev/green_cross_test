@@ -39,8 +39,8 @@ class MemoViewModel {
   }
 
   Future<void> _createOffice(
-    String name,
-    String location,
+      String name,
+      String location,
   ) async {
     Result result = await _repository.createOffice(name, location);
 
@@ -50,7 +50,7 @@ class MemoViewModel {
   }
 
   Future<void> _createAccount(
-    String role,
+      String role,
   ) async {
     Result result = await _repository.createAccount(_office.id, role);
 
@@ -77,6 +77,17 @@ class MemoViewModel {
     if (result is R.Success) {
       _memos = result.data;
       return U.Success();
+    } else {
+      _error = (result as R.Error).message;
+      return U.Error();
+    }
+  }
+
+  Future<UiState> editMemo(MemoModel memo) async {
+    Result result = await _repository.updateMemo(_user.id, memo.id, memoContentController.text);
+
+    if (result is R.Success) {
+      return await _loadMemo();
     } else {
       _error = (result as R.Error).message;
       return U.Error();
