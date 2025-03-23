@@ -37,4 +37,15 @@ class ServiceRepository {
       return Result.error(e.toString());
     }
   }
+
+  Future<Result<MemoModels>> readMemo(int office) async {
+    try {
+      List<OfficeAccountMemo> data = await _database.readMemo(office);
+      return Result.success(
+          MemoModels(data.map((data) => data.toModel()).toList())
+      );
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
 }

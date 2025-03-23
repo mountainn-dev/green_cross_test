@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:green_cross_test/data/Result.dart' as R;
 import 'package:green_cross_test/data/repository/ServiceRepository.dart';
+import 'package:green_cross_test/view/state/UiState.dart' as U;
 
 import '../../../domain/model/OfficeModel.dart';
 import '../../data/Result.dart';
 import '../../domain/model/AccountModel.dart';
-import '../state/UiState.dart' as U;
+import '../../domain/model/MemoModel.dart';
+import '../state/UiState.dart';
 
 class MemoViewModel {
   late final repository = ServiceRepository();
@@ -15,6 +17,12 @@ class MemoViewModel {
 
   late final OfficeModel _office;
   OfficeModel get office => _office;
+
+  MemoModels get memos => _memos;
+  late MemoModels _memos;
+
+  String get error => _error;
+  late String _error;
 
   final TextEditingController memoContentController = TextEditingController();
 
@@ -27,6 +35,7 @@ class MemoViewModel {
   ) async {
     await _createOffice(officeName, officeLocation);
     await _createAccount(userRole);
+    await _loadMemo();
   }
 
   Future<void> _createOffice(
@@ -50,13 +59,26 @@ class MemoViewModel {
     }
   }
 
-  Future<U.UiState> createMemo() async {
+  Future<UiState> createMemoAndLoad() async {
     Result result = await repository.createMemo(_user.id, memoContentController.text);
 
     if (result is R.Success) {
-      return U.Success(data: result.data);
+      return await _loadMemo();
     } else {
-      return U.Error(message: (result as R.Error).message);
+      _error = (result as R.Error).message;
+      return U.Error();
+    }
+  }
+
+  Future<UiState> _loadMemo() async {
+    Result result = await repository.readMemo(_office.id);
+
+    if (result is R.Success) {
+      _memos = result.data;
+      return U.Success();
+    } else {
+      _error = (result as R.Error).message;
+      return U.Error();
     }
   }
 }
