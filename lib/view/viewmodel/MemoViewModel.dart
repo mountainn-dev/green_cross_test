@@ -10,7 +10,7 @@ import '../../domain/model/MemoModel.dart';
 import '../state/UiState.dart';
 
 class MemoViewModel {
-  late final repository = ServiceRepository();
+  late final _repository = ServiceRepository();
 
   late final AccountModel _user;
   AccountModel get user => _user;
@@ -42,7 +42,7 @@ class MemoViewModel {
     String name,
     String location,
   ) async {
-    Result result = await repository.createOffice(name, location);
+    Result result = await _repository.createOffice(name, location);
 
     if (result is R.Success) {
       _office = result.data;
@@ -52,7 +52,7 @@ class MemoViewModel {
   Future<void> _createAccount(
     String role,
   ) async {
-    Result result = await repository.createAccount(_office.id, role);
+    Result result = await _repository.createAccount(_office.id, role);
 
     if (result is R.Success) {
       _user = result.data;
@@ -60,7 +60,7 @@ class MemoViewModel {
   }
 
   Future<UiState> createMemoAndLoad() async {
-    Result result = await repository.createMemo(_user.id, memoContentController.text);
+    Result result = await _repository.createMemo(_user.id, memoContentController.text);
 
     if (result is R.Success) {
       memoContentController.clear();
@@ -72,11 +72,22 @@ class MemoViewModel {
   }
 
   Future<UiState> _loadMemo() async {
-    Result result = await repository.readMemo(_office.id);
+    Result result = await _repository.readMemo(_office.id);
 
     if (result is R.Success) {
       _memos = result.data;
       return U.Success();
+    } else {
+      _error = (result as R.Error).message;
+      return U.Error();
+    }
+  }
+
+  Future<UiState> deleteMemo(MemoModel memo) async {
+    Result result = await _repository.deleteMemo(_user.id, memo.id);
+
+    if (result is R.Success) {
+      return await _loadMemo();
     } else {
       _error = (result as R.Error).message;
       return U.Error();

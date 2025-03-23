@@ -48,4 +48,13 @@ class ServiceRepository {
       return Result.error(e.toString());
     }
   }
+
+  Future<Result<void>> deleteMemo(int user, int memo) async {
+    try {
+      await _database.deleteMemo(user, memo);
+      return Result.success(null);
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
 }

@@ -56,7 +56,7 @@ class MemoState extends State {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                     child: Text(
                       _viewModel.office.location,
                       style: const TextStyle(
@@ -99,12 +99,67 @@ class MemoState extends State {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text(_viewModel.memos.get(index).author.role),
-                                                  SizedBox(width: 8),
-                                                  Text(_viewModel.memos.get(index).author.office.name),
+                                                  Column(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            _viewModel.memos.get(index).author.role,
+                                                            style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 8),
+                                                          Text(
+                                                            _viewModel.memos.get(index).author.office.name,
+                                                            style: TextStyle(
+                                                              fontWeight: FontWeight.bold,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Text(
+                                                        "(${_viewModel.memos.get(index).createdAt.toString()})",
+                                                        style: TextStyle(
+                                                          color: Colors.grey
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Spacer(),
+                                                  Row(
+                                                    children: [
+                                                      TextButton(
+                                                          onPressed: () {},
+                                                          child: Text("수정"),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          _viewModel.deleteMemo(_viewModel.memos.get(index))
+                                                              .then((state) {
+                                                            if (state is Success) {
+                                                              setState(() {});
+                                                            } else {
+                                                              showDialog(
+                                                                context: context,
+                                                                builder: (BuildContext context) {
+                                                                  return AlertDialog(
+                                                                    title: Text("에러"),
+                                                                    content: Text(_viewModel.error),
+                                                                  );
+                                                                },
+                                                              );
+                                                            }
+                                                          });
+                                                        },
+                                                        child: Text("삭제"),
+                                                      )
+                                                    ],
+                                                  )
                                                 ],
                                               ),
-                                              Text(_viewModel.memos.get(index).createdAt.toString()),
                                               SizedBox(height: 8),
                                               Text(_viewModel.memos.get(index).content),
                                             ],
