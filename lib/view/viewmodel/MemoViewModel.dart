@@ -11,6 +11,7 @@ import '../state/UiState.dart';
 
 class MemoViewModel {
   late final _repository = ServiceRepository();
+  bool _hasInit = false;
 
   late final AccountModel _user;
   AccountModel get user => _user;
@@ -33,9 +34,12 @@ class MemoViewModel {
       String officeLocation,
       String userRole,
   ) async {
+    if (_hasInit) return;
+
     await _createOffice(officeName, officeLocation);
     await _createAccount(userRole);
     await _loadMemo();
+    _hasInit = true;
   }
 
   Future<void> _createOffice(

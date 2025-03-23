@@ -36,8 +36,17 @@ class MemoState extends State {
         future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CE"),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              floatingActionButton: FloatingActionButton.extended(
+                label: Text("메모 작성하기"),
+                onPressed: () {},
+              ),
             );
           } else {
             return Scaffold(
