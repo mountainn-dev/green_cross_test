@@ -63,6 +63,7 @@ class MemoViewModel {
     Result result = await repository.createMemo(_user.id, memoContentController.text);
 
     if (result is R.Success) {
+      memoContentController.clear();
       return await _loadMemo();
     } else {
       _error = (result as R.Error).message;

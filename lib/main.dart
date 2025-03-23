@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:green_cross_test/domain/model/AccountModel.dart';
+import 'package:green_cross_test/view/state/UiState.dart';
 import 'package:green_cross_test/view/viewmodel/MemoViewModel.dart';
 
 import 'domain/model/OfficeModel.dart';
@@ -104,6 +105,7 @@ class MemoState extends State {
                                                 ],
                                               ),
                                               Text(_viewModel.memos.get(index).createdAt.toString()),
+                                              SizedBox(height: 8),
                                               Text(_viewModel.memos.get(index).content),
                                             ],
                                           );
@@ -124,6 +126,7 @@ class MemoState extends State {
                   ),
                 ],
               ),
+              resizeToAvoidBottomInset: false,
               floatingActionButton: FloatingActionButton.extended(
                 label: Text("메모 작성하기"),
                 onPressed: () {
@@ -188,8 +191,21 @@ class MemoState extends State {
                                 child: TextButton(
                                   onPressed: () {
                                     // TODO: 메모 작성
-                                    _viewModel.createMemoAndLoad().then((_) {
-                                      setState(() {});
+                                    _viewModel.createMemoAndLoad().then((state) {
+                                      if (state is Success) {
+                                        Navigator.pop(context);
+                                        setState(() {});
+                                      } else {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("에러"),
+                                                content: Text(_viewModel.error),
+                                              );
+                                            },
+                                        );
+                                      }
                                     });
                                   },
                                   child: const Text(
