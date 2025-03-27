@@ -33,7 +33,7 @@ class MemoState extends State {
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
       // TODO: base 정보 입력
-        future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CE"),
+        future: _viewModel.init("단아치과의원", "서울 구로구 구로 1동", "CB"),
         builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(

@@ -184,6 +184,7 @@ class MemoDatabase {
             'FROM $TABLE_MEMO '
             'INNER JOIN $TABLE_ACCOUNT ON $TABLE_MEMO.author = $TABLE_ACCOUNT.id '
             'INNER JOIN $TABLE_OFFICE ON $TABLE_ACCOUNT.office = $TABLE_OFFICE.id '
+            'WHERE $TABLE_OFFICE.id = $office'
     );
 
     return result.map((memo) => OfficeAccountMemo.fromMap(memo)).toList();
